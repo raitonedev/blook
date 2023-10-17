@@ -46,7 +46,7 @@ class Blook {
         $componentAttributes = [];
 
         $componentRelativePath = str_replace(".", "/", $this->component) . $this->fileSuffix;
-        $fullComponentPath = $this->componentsPath.'/'.$componentRelativePath;
+        $fullComponentPath = $this->componentsPath.$componentRelativePath;
         $componentCode = File::get($fullComponentPath);
 
         // Passing all get params in all cases
