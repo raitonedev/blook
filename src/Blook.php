@@ -10,6 +10,7 @@ class Blook {
     public ?string $component;
     public ?string $variation;
 
+    public array $params; // GET query
     public array $components;
     public string $componentsPath;
     public array $componentsVariations;
@@ -18,10 +19,11 @@ class Blook {
     public string $fileSuffix;
     private string $rootGroupName;
 
-    public function __construct(string $component=null, string $variation=null)
+    public function __construct(string $component=null, string $variation=null, array $params=[])
     {
         $this->component = $component;
         $this->variation = $variation;
+        $this->params = $params;
         $this->fileSuffix = ".blade.php";
 
         $shouldListComponents = is_null($this->component);
@@ -47,11 +49,17 @@ class Blook {
         $fullComponentPath = $this->componentsPath.'/'.$componentRelativePath;
         $componentCode = File::get($fullComponentPath);
 
+        // Passing all get params in all cases
+        $attributes = $this->params;
+
         if($this->variation && in_array($this->component, $this->componentsWithVariations)){
-            $componentAttributes = new ComponentAttributeBag(
-                $this->componentsVariations[$this->component][$this->variation]["attributes"]
+            $attributes = array_merge(
+                $attributes,
+                $this->componentsVariations[$this->component][$this->variation]["attributes"],
             );
         }
+
+        $componentAttributes = new ComponentAttributeBag($attributes);
 
         return [
             "fullComponentPath" => $fullComponentPath,

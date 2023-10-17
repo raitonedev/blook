@@ -2,29 +2,34 @@
 
 namespace Raitone\Blook\Controllers;
 
+use Illuminate\Http\Request;
 use Raitone\Blook\Blook;
-
 
 class BlookController
 {
 
-    public function index(string $component=null, string $variation=null)
+    public function index(Request $request, string $component=null, string $variation=null)
     {
         $blook = new Blook();
-        $componentShowRoute = ""; // Defaults to empty route for component iframe
 
-        // Preparing iframe route to show component default
+        // Preparing iframe route to show component
         if($component){
-            $componentShowRoute = route('blook.show', $component);
+            $routeName = 'blook.show';
+            $context = [$component];
         }
 
         // Preparing iframe route to show component with variation
         if($variation){
-            $componentShowRoute = route('blook.show.variation', [
-                "component" => $component,
-                "variation" => $variation
-            ]);
+            $routeName = 'blook.show.variation';
+            $context = [$component, $variation];
         }
+
+        // Repopulating context with query args if there are some
+        foreach($request->query() as $arg => $value){
+            $context[$arg] = $value;
+        }
+
+        $componentShowRoute = route($routeName, $context);
 
         return view('blook::index', [
             "component" => $component,
@@ -34,9 +39,9 @@ class BlookController
     }
 
 
-    public function show(string $component, string $variation=null)
+    public function show(Request $request, string $component, string $variation=null)
     {
-        $blook = new Blook($component, $variation);
+        $blook = new Blook($component, $variation, $request->query());
         return view('blook::show', $blook->getComponentDetails());
     }
 }
