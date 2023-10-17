@@ -1,0 +1,15 @@
+{
+    "name": "raitone/blook",
+    "description": "A lightweight interface to work on your laravel components in an isolated way.",
+    "autoload": {
+        "psr-4": {
+            "Raitone\\Blook\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "raitone.com"
+        }
+    ],
+    "require": {}
+}
