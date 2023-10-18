@@ -7,16 +7,10 @@
         <title>Component Details {{ $componentName }}</title>
 
         <style>
-            #canva{
-                position:relative;
-                transform-origin: top left;
-                overflow-y:scroll;
-            }
+            #canva{ position:relative; overflow-y:scroll; transform-origin: top left; }
 
-            .blook-centered-canva{
-                display: flex;
-                justify-content: center;
-            }
+            /* Class applied when center tool is enabled */
+            .blook-centered-canva{ display:flex; justify-content: center; padding-top: 20px; }
 
             /* Utilities */
             .blook-show-section-title{ font-weight: bold; }
@@ -51,7 +45,10 @@
                 padding: 0px 20px;
             }
 
-            .blook-show-body{ height: 65%; overflow: scroll; }
+            .blook-show-body{
+                height: 65%;
+                overflow: scroll;
+            }
 
             .blook-show-bottombar{
                 height: 30%;
@@ -78,7 +75,7 @@
     </head>
     <body style="padding:0; margin:0;">
 
-    <div style="height: 100svh;">
+    <div style="height: 96svh;">
 
         <div class="blook-show-topbar">
             <div>
@@ -135,17 +132,17 @@
 
         <style>
             .bg-default{ background-color: none; }
-            .vewport-default{ width: 100%; height: 100%; transform: scale(1); }
+            .vewport-default{ width: 100%; height: fit-content; transform: scale(1); }
 
             @foreach(config('blook.backgrounds') as $background)
                 .bg-{{ $background['id'] }} { background-color: {{ $background['color'] }}; }
             @endforeach
             @foreach(config('blook.viewports') as $viewport)
-                .viewport-{{ $viewport['id'] }} { 
+                .viewport-{{ $viewport['id'] }} {
                     width: {{ $viewport['width'] }};
                     height: {{ $viewport['height'] }};
-                    transform: scale({{ $viewport['scale'] }});
                     border: 2px dashed #ccc;
+                    transform:scale({{ $viewport['scale'] }});
                 }
             @endforeach
         </style>

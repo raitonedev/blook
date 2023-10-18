@@ -45,6 +45,12 @@
                                     // Init interface
                                     this.changeBackground(this.colorId);
                                     this.changeViewport(this.viewportId);
+                                    
+                                    if(this.alignInMiddle){
+                                        this.workingCanvaParent.classList.remove('blook-centered-canva');
+                                    }else{
+                                        this.workingCanvaParent.classList.add('blook-centered-canva');
+                                    }
 
                                 });
                             },
@@ -61,9 +67,13 @@
                                 this.workingCanva.classList.toggle('viewport-' + viewportId);
                             },
 
-                            toggleAlignment(alignInMiddle) {
-                                this.alignInMiddle = alignInMiddle;
-                                this.workingCanvaParent.classList.toggle('blook-centered-canva');
+                            toggleAlignment() {
+                                this.alignInMiddle = ! this.alignInMiddle;
+                                if(this.alignInMiddle){
+                                    this.workingCanvaParent.classList.remove('blook-centered-canva');
+                                }else{
+                                    this.workingCanvaParent.classList.add('blook-centered-canva');
+                                }
                             },
 
                             closeMenus() {
@@ -108,7 +118,8 @@
                 background-color: #f8f8f8;
                 display:flex;
                 padding-left: 20px;
-                padding-top: 10px;
+                height: 4svh;
+                align-items: flex-end;
             }
 
             .blook-tools-menu{
