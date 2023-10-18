@@ -29,7 +29,7 @@ class BlookController
             $context[$arg] = $value;
         }
 
-        $componentShowRoute = route($routeName, $context);
+        $componentShowRoute = isset($routeName) ? route($routeName, $context) : "";
 
         return view('blook::index', [
             "component" => $component,

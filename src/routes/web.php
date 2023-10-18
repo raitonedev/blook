@@ -1,12 +1,26 @@
 <?php
 
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Route;
-use Raitone\Blook\Controllers\BlookController as BC;
 
-# Iframe used
-Route::get('/blook/show/{component}', [BC::class, 'show'])->name('blook.show');
-Route::get('/blook/show/{component}/variation/{variation}', [BC::class, 'show'])->name('blook.show.variation');
+use Raitone\Blook\Controllers\BlookController;
 
-# App used
-Route::get('/blook/{component?}', [BC::class, 'index'])->name('blook.index');
-Route::get('/blook/{component?}/variation/{variation}', [BC::class, 'index'])->name('blook.component.variation');
+$inValidEnvironment = App::environment(config('blook.enabled_environments'));
+
+if($inValidEnvironment){
+    Route::prefix(config("blook.base_route"))->group(function () {
+        Route::name('blook.')->group(function () {
+            Route::controller(BlookController::class)->group(function () {
+    
+                # Iframe
+                Route::get('/show/{component}', 'show')->name('show');
+                Route::get('/blook/show/{component}/variation/{variation}', 'show')->name('show.variation');
+                
+                # Interface
+                Route::get('/{component?}', 'index')->name('index');
+                Route::get('/{component?}/variation/{variation}','index')->name('component.variation');
+    
+            });
+        });
+    });
+}

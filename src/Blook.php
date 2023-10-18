@@ -17,6 +17,7 @@ class Blook {
     public array $componentsWithVariations;
 
     public string $fileSuffix;
+    public string $definitionFilename;
     private string $rootGroupName;
 
     public function __construct(string $component=null, string $variation=null, array $params=[])
@@ -24,13 +25,15 @@ class Blook {
         $this->component = $component;
         $this->variation = $variation;
         $this->params = $params;
+        $this->definitionFilename = "@definitions.php";
         $this->fileSuffix = ".blade.php";
 
         $shouldListComponents = is_null($this->component);
 
         $this->rootGroupName = config('blook.root_group_name');
         $this->componentsPath = base_path(config('blook.path'));
-        $this->componentsVariations = config('blook.variations');
+        //$this->componentsVariations = config('blook.variations');
+        $this->componentsVariations = include($this->componentsPath.$this->definitionFilename);
         $this->componentsWithVariations = array_keys($this->componentsVariations);
 
         /*
@@ -85,6 +88,7 @@ class Blook {
         $fileSuffix = ".blade.php";
         $items = scandir($dir);
 
+        unset($items[array_search($this->definitionFilename, $items, true)]);
         unset($items[array_search('.', $items, true)]);
         unset($items[array_search('..', $items, true)]);
     

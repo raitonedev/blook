@@ -8,8 +8,19 @@ return [
     # Path where your components are stored
     "path" => 'resources/views/components/',
 
-    # Root component group name
+    # Group name for components in root of "path" folder
     "root_group_name" => "base",
+
+    # Base route under which you want the interface
+    "base_route" => "/blook",
+
+    # List of envs on which you want blook (will enable or diable routes)
+    # By default it is not made available on "production"
+    "enabled_environments" => [
+        "local",
+        "test",
+        # production,
+    ],
 
     # Assets to load on all styleguide interface. Should be vite "bundle" names
     "assets" => [
@@ -20,40 +31,16 @@ return [
     # Which components do you want to ignore on the styleguide interface
     "banlist" => [
         "asset",
+        "button",
         "application-logo",
+        "auth-card",
+        "auth-session-status",
+        "auth-validation-errors",
+        "dropdown-link",
+        "dropdown",
+        "input",
+        "label",
+        "nav-link",
+        "responsive-nav-link"
     ],
-
-    # Define your variations for components with variations
-    "variations" => [
-        "atoms.button" => [
-            "primary" => [
-                "label" => "Primary",
-                "attributes" => [
-                    "variation" => "primary",
-                    "ofk" => "ghj",
-                    "ofuio" => "uio",
-                    "ofgfk" => "ghj",
-                    "offgdduio" => "uio",
-                    "ofdgk" => "ghj",
-                    "offfduio" => "uio",
-                    "ouio" => "uio",
-                    "offgfgk" => "ghj",
-                    "ofdffduio" => "uio",
-                    "ofgfgdfdgk" => "ghj",
-                    "offffddfduio" => "uio",
-                    "oudfdfio" => "uio",
-                    "offdk" => "ghj",
-                    "ofddfdfduio" => "uio",
-                    "ofdfdfdgk" => "ghj",
-                    "ofdfdfffduio" => "uio",
-                ]
-            ],
-            "danger" => [
-                "label" => "Danger",
-                "attributes" => [
-                    "variation" => "danger"
-                ]
-            ]
-        ]
-    ]
 ];
