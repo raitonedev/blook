@@ -42,7 +42,9 @@
                             <div
                                 x-show="{{ $variationMenu }}"
                                 x-transition x-cloak
-                                class="blook-variations-bloc">
+                                class="blook-variations-bloc"
+                                style="margin-bottom: 8px;"
+                            >
                                 @foreach($values["variations"] as $variation => $props)
                                     <div style="margin-bottom: 4px;">
                                         <a href="{{ route('blook.component.variation', [
