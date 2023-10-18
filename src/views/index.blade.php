@@ -45,7 +45,7 @@
                                     // Init interface
                                     this.changeBackground(this.colorId);
                                     this.changeViewport(this.viewportId);
-                                    
+
                                     if(this.alignInMiddle){
                                         this.workingCanvaParent.classList.remove('blook-centered-canva');
                                     }else{
@@ -88,58 +88,64 @@
         </script>
 
         <style>
-            .blook-title{ font-weight: bold; font-size: 1.2em;}
-            .blook-container{ display:flex; height: 100svh; overflow:hidden; }
+            /* Utilities */
+            h4{ margin-top: 12px; margin-bottom: 12px; }
+            .blook-h-screen { height: 100svh; }
+            .blook-bold{ font-weight: bold; }
+            .blook-bg-light { background-color: #f8f8f8; }
+            .blook-flex{ display:flex }
+            .blook-space-between{ justify-content: space-between; }
+            .blook-items-center { align-items: center;}
+            .blook-o-h{overflow: hidden;}
+            .blook-o-y-h{overflow-y: scroll;}
             .blook-null{ margin: 0 !important; padding: 0 !important; }
-            .blook-body{ height: 100vh; }
+            .blook-capitalize{ text-transform: capitalize;}
+            .blook-muted{ color: #999; }
+
+            /* Styles */
+            .blook-menu-item{margin-top: 4px;}
+            .blook-menu-item a{ text-transform: capitalize; text-decoration: none;}
+            .blook-tools-menu{ min-width: 100px; padding: 12px; border: 1px solid #eee; position: absolute; border-radius: 4px; }
+            .blook-tools-menu-item{ cursor:pointer; margin-bottom: 8px; display:block; border:none; background:none;}
+
+            /* Structure */
             .blook-sidebar{
                 font-family: Arial, Helvetica, sans-serif;
                 width: 15vw;
-                background: #f8f8f8;
                 border-right: 2px solid #f0f0f0;
                 font-size: .8em;
                 padding: 24px;
-                min-height: 100svh;
-                overflow-y: scroll;
             }
-            .blook-variations-bloc{
-                margin-top: 6px;
-                margin-left: 16px;
-            }
-            .blook-group-name{ text-transform: capitalize;}
-            .blook-menu-item{margin-top: 8px;}
-            .blook-menu-item a{ text-transform: capitalize; text-decoration: none;}
-            .blook-iframe{ border: none; width: 85vw; height: 100svh; overflow:hidden;}
 
-            /* Utilites */
-            .blook-flex{ display:flex; }
             .blook-tools{
                 gap: 10px;
-                background-color: #f8f8f8;
                 display:flex;
                 padding-left: 20px;
                 height: 4svh;
                 align-items: flex-end;
             }
-
-            .blook-tools-menu{
-                min-width: 100px; padding: 12px; border: 1px solid #eee; position: absolute; background: #f8f8f8; border-radius: 4px;
+            .blook-iframe{
+                border: none;
+                width: 85vw;
+                height: 100svh;
+                overflow:hidden;
             }
 
-            .blook-tools-menu-item{
-                cursor:pointer; margin-bottom: 8px; display:block; border:none; background:none;
+            .blook-variations-bloc{
+                margin-top: 6px;
+                margin-left: 16px;
             }
 
         </style>
     </head>
 
-    <body class="blook-null blook-body" x-data="blook">
+    <body class="blook-null blook-h-screen" x-data="blook">
 
-        <div class="blook-container">
-            <div class="blook-sidebar">
+        <div class="blook-o-h blook-h-screen blook-flex">
+            <div class="blook-sidebar blook-bg-light blook-o-y-h blook-h-screen">
 
                 <div>
-                    <span class="blook-title">{{ config("blook.title") }}</span>
+                    <span>{{ config("blook.title") }}</span>
                 </div>
 
                 @foreach($components as $group => $item)
@@ -147,18 +153,19 @@
                 @endforeach
 
             </div>
+
             <div class="blook-workspace">
                 
-                <div class="blook-tools">
+                <div class="blook-bg-light blook-tools">
                 
-                <div>
+                    <div>
                         <div
                             @click="bgMenuOpen = !bgMenuOpen"
                             @click.outside="bgMenuOpen = false"
                         >
                             @include('blook::components.icon', ['icon' => 'backgrounds'])
                         </div>
-                        <div class="blook-tools-menu" x-cloak x-transition x-show="bgMenuOpen">
+                        <div class="blook-bg-light blook-tools-menu" x-cloak x-transition x-show="bgMenuOpen">
                             <button class="blook-tools-menu-item" @click="changeBackground('default')">
                                 Default
                             </button>
@@ -170,7 +177,6 @@
                         </div>
                     </div>
 
-
                     <div>
                         <div
                             @click="viewportMenuOpen = !viewportMenuOpen"
@@ -178,7 +184,7 @@
                         >
                         @include('blook::components.icon', ['icon' => 'viewports'])
                         </div>
-                        <div class="blook-tools-menu" x-cloak x-transition x-show="viewportMenuOpen">
+                        <div class="blook-bg-light blook-tools-menu" x-cloak x-transition x-show="viewportMenuOpen">
                             <button class="blook-tools-menu-item" @click="changeViewport('default')">
                                 Default
                             </button>
