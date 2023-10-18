@@ -89,7 +89,7 @@
 
         <style>
             /* Utilities */
-            h4{ margin-top: 12px; margin-bottom: 12px; }
+            h4{ margin-top: 0px; margin-bottom: 0px; }
             .blook-h-screen { height: 100svh; }
             .blook-bold{ font-weight: bold; }
             .blook-bg-light { background-color: #f8f8f8; }
