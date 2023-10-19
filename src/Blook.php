@@ -132,10 +132,14 @@ class Blook {
 
         foreach($items as $item){
             if(is_dir($dir.'/'.$item)){
-                $main[$item] = [
-                    "type" => "folder",
-                    "children" => $this->getAllComponents($dir.'/'.$item, $level + 1)
-                ];
+
+                if(! in_array($item.'/', config('blook.banlist'))){
+                    $main[$item] = [
+                        "type" => "folder",
+                        "children" => $this->getAllComponents($dir.'/'.$item, $level + 1)
+                    ];
+                }
+
             }else{
 
                 $cleanName = $this->getComponentName($item);
