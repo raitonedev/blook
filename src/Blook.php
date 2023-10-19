@@ -73,15 +73,10 @@ class Blook {
 
     public function getComponentDetails()
     {
-        if(!$this->component){
-            return [];
-        }
-
         $componentAttributes = [];
-
         $componentRelativePath = str_replace(".", "/", $this->component) . $this->fileSuffix;
         $fullComponentPath = $this->componentsPath.$componentRelativePath;
-        $componentCode = File::get($fullComponentPath);
+        $componentCode = is_file($fullComponentPath) ? File::get($fullComponentPath) : "";
 
         // Passing all get params in all cases
         $attributes = $this->params;
@@ -97,7 +92,7 @@ class Blook {
 
         return [
             "fullComponentPath" => $fullComponentPath,
-            "componentName" => $this->component,
+            "componentName" => $this->component ?? "",
             "componentCode" => $componentCode,
             "attributes" => $componentAttributes,
             "variation" => $this->variation
