@@ -287,7 +287,8 @@
           <button x-show="! bottomBarActive" @click="bottomBarActive = !bottomBarActive" class="absolute z-50 background-white border-2 bottom-0 bg-white rounded-t-md right-4 p-2 font-semibold text-gray-400">
             Show bar
           </button>
-          <div x-show="bottomBarActive" class="h-[40svh] sticky bottom-0 overflow-auto bg-white">
+
+          <div x-show="bottomBarActive" x-transition class="h-[40svh] sticky bottom-0 overflow-auto bg-white">
 
             <div class="flex justify-between font-semibold text-gray-400 py-3 px-5 border-t-2 border-b-2 sticky top-0 bg-white">
               <div class="flex gap-8">
@@ -300,7 +301,7 @@
             </div>
 
             <!-- CONTEXT TAB -->
-            <div x-show="activeTab == 'context'" class="w-full overflow-scroll">
+            <div x-show="activeTab == 'context'" x-transition class="w-full overflow-scroll">
 
               @if($attributes && count($attributes->getAttributes()) > 0)
               <dl class="divide-y divide-gray-100">
@@ -317,7 +318,7 @@
             </div>
 
             <!-- CODE TAB -->
-            <div x-show="activeTab == 'code'" class="w-full overflow-scroll">
+            <div x-show="activeTab == 'code'" x-transition class="w-full overflow-scroll">
               <pre class="code text-[10px]">@foreach(preg_split("/((\r?\n)|(\r\n?))/", $componentCode) as $line)<code>{{ $line }}</code>@endforeach</pre>
             </div>
 

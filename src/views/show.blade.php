@@ -7,7 +7,10 @@
         <title>Component - {{ $componentName }}</title>
     </head>
 
-    <style>#canva{ position:relative; overflow-y:scroll; transform-origin: top left; }</style>
+    <style>
+        #canva{ position:relative; overflow-y:scroll; transform-origin: top left; }
+        #canva-parent, #canva, body{ transition-duration: 280ms; }
+    </style>
 
     <body>
         <div id="canva-parent">
