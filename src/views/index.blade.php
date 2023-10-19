@@ -216,7 +216,7 @@
           <div class="border-b border-gray-300 sticky top-0 bg-white">
             
             <!-- INFOBAR -->
-            <div class="hidden md:flex flex justify-between py-2 px-4">
+            <div class="hidden md:flex flex justify-between py-3 px-4">
               <div>
                 <span class="font-semibold">{{ $componentName }}</span>
                 @if($variation)
