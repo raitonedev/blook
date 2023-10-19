@@ -17,7 +17,7 @@ class BlookProvider extends ServiceProvider
         $this->loadViewsFrom(__DIR__.'/../views', 'blook');
         $this->publishes([
             __DIR__.'/../config/blook.php' => config_path('blook.php'),
-            __DIR__.'/../@definitions.php' => resource_path('/views/@definitions.php'),
+            __DIR__.'/../@definitions.php' => resource_path('/views/components/@definitions.php'),
         ]);
     }
 
