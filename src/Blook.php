@@ -9,43 +9,74 @@ class Blook {
 
     public ?string $component;
     public ?string $variation;
+    public ?bool $explore;
 
     public array $params; // GET query
-    public array $components;
+    private array $components;
     public string $componentsPath;
-    public array $componentsVariations;
-    public array $componentsWithVariations;
+    public array $componentsDefinitions;
+    public array $componentsWithDefinitions;
 
     public string $fileSuffix;
     public string $definitionFilename;
     private string $rootGroupName;
 
-    public function __construct(string $component=null, string $variation=null, array $params=[])
+    public function __construct(
+        string $component=null,
+        string $variation=null,
+        array $params=[],
+        bool $explore=false)
     {
+
         $this->component = $component;
         $this->variation = $variation;
         $this->params = $params;
+        $this->explore = $explore;
         $this->definitionFilename = "@definitions.php";
         $this->fileSuffix = ".blade.php";
 
-        $shouldListComponents = is_null($this->component);
-
         $this->rootGroupName = config('blook.root_group_name');
         $this->componentsPath = base_path(config('blook.path'));
-        //$this->componentsVariations = config('blook.variations');
-        $this->componentsVariations = include($this->componentsPath.$this->definitionFilename);
-        $this->componentsWithVariations = array_keys($this->componentsVariations);
+        $this->componentsDefinitions = include_once($this->componentsPath.$this->definitionFilename);
+        $this->componentsWithDefinitions = array_keys($this->componentsDefinitions);
 
         /*
         * Since both controllers use a Blook object to get content, we go through the component
-        * listing only if component is not provided, for performance reasons. This avoid to loop through
-        * files and folder when a blook.show page is called.
+        * listing only if when explicitly asked (on index), for performance reasons. This avoid to loop through
+        * files and folder each time a 'blook.show' page is called.
         */
-        $this->components = $shouldListComponents ? $this->getAllComponents($this->componentsPath, 1) : [];
+        $this->components = $this->explore ? $this->getAllComponents($this->componentsPath, 1) : [];
+    }
+
+
+    public function getComponentShowRoute()
+    {
+        // Preparing iframe route to show component
+        if($this->component){
+            $routeName = 'blook.show';
+            $context = [$this->component];
+        }
+
+        // Preparing iframe route to show component with variation
+        if($this->variation){
+            $routeName = 'blook.show.variation';
+            $context = [$this->component, $this->variation];
+        }
+
+        // TODO DOM FIN D A WAYRepopulating context with query args if there are some
+        /*foreach($request->query() as $arg => $value){
+            $context[$arg] = $value;
+        }*/
+
+        return isset($routeName) ? route($routeName, $context) : "";
     }
 
     public function getComponentDetails()
     {
+        if(!$this->component){
+            return [];
+        }
+
         $componentAttributes = [];
 
         $componentRelativePath = str_replace(".", "/", $this->component) . $this->fileSuffix;
@@ -55,10 +86,10 @@ class Blook {
         // Passing all get params in all cases
         $attributes = $this->params;
 
-        if($this->variation && in_array($this->component, $this->componentsWithVariations)){
+        if($this->variation && in_array($this->component, $this->componentsWithDefinitions)){
             $attributes = array_merge(
                 $attributes,
-                $this->componentsVariations[$this->component][$this->variation]["attributes"],
+                $this->componentsDefinitions[$this->component][$this->variation]["attributes"],
             );
         }
 
@@ -71,6 +102,11 @@ class Blook {
             "attributes" => $componentAttributes,
             "variation" => $this->variation
         ];
+    }
+
+    public function getComponents()
+    {
+        return $this->components;
     }
 
     private function getComponentName(string $filename)
@@ -111,8 +147,8 @@ class Blook {
 
                     // Getting variations if some exist
                     $variations = [];
-                    if(in_array($componentFullName, $this->componentsWithVariations)){
-                        $variations = $this->componentsVariations[$componentFullName];
+                    if(in_array($componentFullName, $this->componentsWithDefinitions)){
+                        $variations = $this->componentsDefinitions[$componentFullName];
                     }
 
                     if($level == 1){

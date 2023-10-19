@@ -1,76 +1,86 @@
-@php $folderMenu = "folderMenu".$loop->iteration @endphp
-<div style="margin-top: 8px; margin-bottom: 8px; border-bottom: 1px solid #eee; padding: 8px;" x-data="{ {{ $folderMenu }}: $persist(true) }">
+@php
+    $folderMenu = "folderMenu".$id;
+@endphp
 
-    <div @click="{{ $folderMenu }} = !{{ $folderMenu }}" style="display:flex; gap: 4px;">
-        <span class="blook-muted">
-            @include('blook::components.icon', ['icon' => 'folder', 'size' => '15px'])
-        </span>
-        <h4 class="blook-capitalize blook-bold">{{ $group }}</h4>
-    </div>
 
-    <div style="margin-top: 16px;" x-show="{{ $folderMenu }}" x-transition>
+<li x-data="{ {{ $folderMenu }}: $persist(true) }">
+
+    <!-- FOLDER -->
+    <span
+        @click="{{ $folderMenu }} = !{{ $folderMenu }}"
+        class="bg-gray-50 text-indigo-600 group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold"
+    >
+        <span class="text-gray-400">@include('blook::components.icon', ['icon' => 'folder'])</span>
+        <h4 class="font-semibold capitalize">{{ $group }}</h4>
+    </span>
+
+    <!-- FOLDER SUB-BLOC -->
+    <span
+        x-show="{{ $folderMenu }}"
+        x-transition
+        class="block p-4"
+    >
         @foreach($items as $item => $values)
             @if($values["type"] == "folder")
-                <div style="padding-left: calc({{ $loop->iteration }} * 12px);">
-                    @include("blook::components.group", ["group" => $item, "items" => $values["children"]])
-                </div>
+                @include("blook::components.group", ["group" => $item, "items" => $values["children"], "id" => $id."sub".$loop->iteration])
             @else
-                <div class="blook-menu-item" style="padding-left: 12px;">
 
                 @if(count($values["variations"]) > 0)
 
                     @php $variationMenu = "variationsMenu".$loop->parent->iteration.$loop->iteration; @endphp
 
                     <div x-data="{ {{ $variationMenu }}: $persist(false) }">
-                        <div class="blook-flex blook-space-between">
+                        <div class="flex justify-between">
 
-                            <div class="blook-flex blook-items-center" style="gap:4px;">
-                                <span class="blook-muted" style="margin-top: 2px;">
-                                    @include('blook::components.icon', ['icon' => 'component', 'size' => '18px'])
+                            <div class="flex gap-2 items-center">
+                                <span class="text-gray-400">
+                                    @include('blook::components.icon', ['icon' => 'component'])
                                 </span>
-                                <a class="blook-bold" href="{{ route('blook.index', $values['fullname']) }}">{{ $values["name"] }}</a>
+                                <a class="font-semibold text-sm capitalize" href="{{ route('blook.index', $values['fullname']) }}">{{ $values["name"] }}</a>
                             </div>
 
                             <div
                                 @click="{{ $variationMenu }} = !{{ $variationMenu }}"
-                                class="blook-muted"
+                                class="text-indigo-300"
                             >
-                                @include('blook::components.icon', ['icon' => 'plus', 'size' => '16px'])
+                                @include('blook::components.icon', ['icon' => 'plus'])
                             </div>
                         </div>
                             
+                            <!-- VARIATIONS ITEMS -->
                             <div
                                 x-show="{{ $variationMenu }}"
                                 x-transition x-cloak
-                                class="blook-variations-bloc"
-                                style="margin-bottom: 8px;"
+                                class="pl-2 mt-4 mb-8"
                             >
                                 @foreach($values["variations"] as $variation => $props)
-                                    <div style="margin-bottom: 4px;">
+                                    <div class="mb-2 text-sm">
                                         <a href="{{ route('blook.component.variation', [
                                             'component' => $values['fullname'],
                                             'variation' => $variation
                                         ]) }}">
-                                            {{ $props["label"] }}
+                                            <span class="text-gray-400 mr-2">–</span> {{ $props["label"] }}
                                         </a>
                                     </div>
                                 @endforeach
                             </div>
-                    </div>
+                    </span>
 
                 @else
-                    <div class="blook-flex blook-items-center" style="gap:4px;">
-                        <span class="blook-muted" style="margin-top: 2px;">
-                            @include('blook::components.icon', ['icon' => 'component', 'size' => '18px'])
+                    <!-- STANDALONE COMPONENT -->
+                    <span class="flex gap-2 items-center mt-2">
+                        <span class="text-gray-400">
+                            @include('blook::components.icon', ['icon' => 'component'])
                         </span>
-                        <a class="blook-bold" href="{{ route('blook.index', $values['fullname']) }}">{{ $values["name"] }}</a>
-                    </div>
+                        <a
+                            class="font-semibold capitalize text-sm"
+                            href="{{ route('blook.index', $values['fullname']) }}"
+                        >{{ $values["name"] }}</a>
+                    </span>
                 @endif
 
-        
-                </div>
+
             @endif
         @endforeach
-    </div>
-
-</div>
+    </span>
+</li>

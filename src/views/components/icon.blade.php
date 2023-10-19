@@ -1,6 +1,6 @@
 @props([
     'icon' => 'align',
-    'size' => '24px',
+    'size' => '6',
 ])
 
 @php
@@ -43,7 +43,7 @@
 @endphp
 
 <svg
-    style="min-width: {{ $size }}; min-height: {{ $size }};"
+    class="h-{{ $size }} w-{{ $size }}"
     fill="currentColor"
     version="1.1"
     viewBox="0 0 1200 1200"
