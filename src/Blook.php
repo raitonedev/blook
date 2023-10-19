@@ -5,7 +5,8 @@ namespace Raitone\Blook;
 use Illuminate\Support\Facades\File;
 use Illuminate\View\ComponentAttributeBag;
 
-class Blook {
+class Blook
+{
 
     public ?string $component;
     public ?string $variation;
@@ -22,11 +23,11 @@ class Blook {
     private string $rootGroupName;
 
     public function __construct(
-        string $component=null,
-        string $variation=null,
-        array $queryParams=[],
-        bool $explore=false)
-    {
+        string $component = null,
+        string $variation = null,
+        array $queryParams = [],
+        bool $explore = false
+    ) {
 
         $this->component = $component;
         $this->variation = $variation;
@@ -37,7 +38,7 @@ class Blook {
 
         $this->rootGroupName = config('blook.root_group_name');
         $this->componentsPath = base_path(config('blook.path'));
-        $this->componentsDefinitions = include_once($this->componentsPath.$this->definitionFilename);
+        $this->componentsDefinitions = include_once($this->componentsPath . $this->definitionFilename);
         $this->componentsWithDefinitions = array_keys($this->componentsDefinitions);
 
         /*
@@ -48,45 +49,61 @@ class Blook {
         $this->components = $this->explore ? $this->getAllComponents($this->componentsPath, 1) : [];
     }
 
-
-    public function getComponentShowRoute()
+    public function getComponentShowRoute() : string
     {
         // Preparing iframe route to show component
-        if($this->component){
+        if ($this->component) {
             $routeName = 'blook.show';
             $context = [$this->component];
         }
 
         // Preparing iframe route to show component with variation
-        if($this->variation){
+        if ($this->variation) {
             $routeName = 'blook.show.variation';
             $context = [$this->component, $this->variation];
         }
 
         // Repopulating with query params
-        foreach($this->queryParams as $param => $value){
+        foreach ($this->queryParams as $param => $value) {
             $context[$param] = $value;
         }
 
         return isset($routeName) ? route($routeName, $context) : "";
     }
 
-    public function getComponentDetails()
+    public function getComponentDetails() : array
     {
         $componentAttributes = [];
         $componentRelativePath = str_replace(".", "/", $this->component) . $this->fileSuffix;
-        $fullComponentPath = $this->componentsPath.$componentRelativePath;
+        $fullComponentPath = $this->componentsPath . $componentRelativePath;
         $componentCode = is_file($fullComponentPath) ? File::get($fullComponentPath) : "";
 
         // Passing all get params in all cases
-        $attributes = $this->queryParams;
+        $queryAttributes = $this->queryParams;
 
-        if($this->variation && in_array($this->component, $this->componentsWithDefinitions)){
-            $attributes = array_merge(
-                $attributes,
-                $this->componentsDefinitions[$this->component][$this->variation]["attributes"],
-            );
+        if($this->componentHasDefinitions()){
+
+            $defaultAttributes = [];
+            $variationAttributes = [];
+
+            // Fetching "default" attributes when present
+            if($this->componentHasDefaultDefinition()){
+                $defaultAttributes = $this->componentsDefinitions[$this->component]["default"]["attributes"];
+            }
+
+            // Fetching variation attributes when present
+            if ($this->variation && in_array($this->component, $this->componentsWithDefinitions)) {
+                $variationAttributes = $this->componentsDefinitions[$this->component][$this->variation]["attributes"];
+            }
+
         }
+
+        // Query overrides variation overrides default
+        $attributes = array_merge(
+            $defaultAttributes,
+            $variationAttributes,
+            $queryAttributes
+        );
 
         $componentAttributes = new ComponentAttributeBag($attributes);
 
@@ -99,36 +116,8 @@ class Blook {
         ];
     }
 
-    public function getComponents()
+    public function getAllComponents($dir, $level) : array
     {
-        return $this->components;
-    }
-
-    private function getComponentName(string $filename)
-    {
-        return explode($this->fileSuffix, $filename)[0];
-    }
-
-    private function getRelativePath(string $filename)
-    {
-        return explode("/components/", $filename)[1];
-    }
-
-    public function shouldCollectItem($item)
-    {
-        return ! in_array($item, config('blook.banlist'));
-    }
-
-    private function getItemVariations($item)
-    {
-        $variations = [];
-        if(in_array($item, $this->componentsWithDefinitions)){
-            $variations = $this->componentsDefinitions[$item];
-        }
-        return $variations;
-    }
-
-    public function getAllComponents($dir, $level){
 
         $main = [];
         $items = scandir($dir);
@@ -139,28 +128,28 @@ class Blook {
         unset($items[array_search('.', $items, true)]);
         unset($items[array_search('..', $items, true)]);
 
-        foreach($items as $item){
+        foreach ($items as $item) {
 
-            $folderName = $item.'/';
-            $fullPath = $dir.'/'.$item;
+            $folderName = $item . '/';
+            $fullPath = $dir . '/' . $item;
 
             // Exploring subfolder if folder and not in banlist
-            if(is_dir($fullPath) && $this->shouldCollectItem($folderName)){
+            if (is_dir($fullPath) && $this->shouldCollectItem($folderName)) {
                 $main[$item] = [
                     "type" => "folder",
                     "children" => $this->getAllComponents($fullPath, $level + 1)
                 ];
-            }else{
+            } else {
 
                 $cleanName = $this->getComponentName($item);
                 $relativePath = $this->getRelativePath($dir);
-                $componentFullName = str_replace("/", ".", substr(explode($fileSuffix, $relativePath.'/'.$item)[0], 1));
+                $componentFullName = str_replace("/", ".", substr(explode($fileSuffix, $relativePath . '/' . $item)[0], 1));
 
-                if($this->shouldCollectItem($componentFullName)){
+                if ($this->shouldCollectItem($componentFullName)) {
 
                     $finalItem = [
                         "type" => "file",
-                        "path" => $relativePath.'/'.$item,
+                        "path" => $relativePath . '/' . $item,
                         "directory" => $relativePath,
                         "name" => $cleanName,
                         "fullname" => $componentFullName,
@@ -169,10 +158,10 @@ class Blook {
                     ];
 
                     // Components in root folder are put in specified folder name
-                    if($level == 1){
+                    if ($level == 1) {
                         $main[$this->rootGroupName]["type"] = "folder";
                         $main[$this->rootGroupName]["children"][] = $finalItem;
-                    }else{
+                    } else {
                         $main[] = $finalItem; // Collecting item
                     }
                 }
@@ -182,5 +171,43 @@ class Blook {
         return $main;
     }
 
-    
+    public function getComponents() : array
+    {
+        return $this->components;
+    }
+
+    private function getComponentName(string $filename) : string
+    {
+        return explode($this->fileSuffix, $filename)[0];
+    }
+
+    private function getRelativePath(string $filename) : string
+    {
+        return explode("/components/", $filename)[1];
+    }
+
+    private function getItemVariations($item) : array
+    {
+        $variations = [];
+        if (in_array($item, $this->componentsWithDefinitions)) {
+            unset($this->componentsDefinitions[$item]["default"]);
+            $variations = $this->componentsDefinitions[$item];
+        }
+        return $variations;
+    }
+
+    private function componentHasDefinitions()
+    {
+        return in_array($this->component, $this->componentsWithDefinitions);
+    }
+
+    private function componentHasDefaultDefinition()
+    {
+        return in_array("default", array_keys($this->componentsDefinitions[$this->component]));
+    }
+
+    private function shouldCollectItem($item) : bool
+    {
+        return !in_array($item, config('blook.banlist'));
+    }
 }

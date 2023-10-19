@@ -222,7 +222,7 @@
                 @if($variation)
                 - <span class="text-gray-400">[{{ $variation }}]</span>
                 @else
-                - <span class="text-gray-400">Default</span>
+                - <span class="text-gray-400">[default]</span>
                 @endif
               </div>
               <div class="text-gray-400">
