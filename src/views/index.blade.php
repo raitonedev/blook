@@ -12,7 +12,14 @@
   <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/persist@3.x.x/dist/cdn.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
+  <!-- Highlightjs for code -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/default.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+
   <script>
+
+    hljs.highlightAll();
+
     document.addEventListener('alpine:init', () => {
 
       Alpine.data('blook', function() {
@@ -109,6 +116,11 @@
       display: inline-block;
       width: 3em;
     }
+
+    pre code.hljs{
+      padding:0;
+    }
+
   </style>
 </head>
 
@@ -408,12 +420,8 @@
             </div>
 
             <!-- CODE TAB -->
-            <div x-show="activeTab == 'code'" class="w-full overflow-scroll px-3 pt-3">
-              <pre class="code text-[10px]">
-@foreach(preg_split("/((\r?\n)|(\r\n?))/", $componentCode) as $line)
-<code>{{ $line }}</code>
-@endforeach
-</pre>
+            <div x-show="activeTab == 'code'" class="w-full overflow-scroll">
+              <pre class="code text-[10px]">@foreach(preg_split("/((\r?\n)|(\r\n?))/", $componentCode) as $line)<code>{{ $line }}</code>@endforeach</pre>
             </div>
 
           </div>
