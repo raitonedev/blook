@@ -78,13 +78,11 @@ class Blook
         $fullComponentPath = $this->componentsPath . $componentRelativePath;
         $componentCode = is_file($fullComponentPath) ? File::get($fullComponentPath) : "";
 
-        // Passing all get params in all cases
+        $defaultAttributes = [];
+        $variationAttributes = [];
         $queryAttributes = $this->queryParams;
 
         if($this->componentHasDefinitions()){
-
-            $defaultAttributes = [];
-            $variationAttributes = [];
 
             // Fetching "default" attributes when present
             if($this->componentHasDefaultDefinition()){
