@@ -8,7 +8,7 @@
     <!-- FOLDER -->
     <span
         @click="{{ $folderMenu }} = !{{ $folderMenu }}"
-        class="bg-gray-50 text-indigo-600 group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold"
+        class="bg-gray-50 cursor-pointer text-indigo-600 group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold"
     >
         <span class="text-gray-400">@include('blook::components.icon', ['icon' => 'folder'])</span>
         <h4 class="font-semibold capitalize">{{ $group }}</h4>
