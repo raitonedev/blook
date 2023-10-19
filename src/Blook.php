@@ -11,7 +11,7 @@ class Blook {
     public ?string $variation;
     public ?bool $explore;
 
-    public array $params; // GET query
+    public array $queryParams;
     private array $components;
     public string $componentsPath;
     public array $componentsDefinitions;
@@ -24,13 +24,13 @@ class Blook {
     public function __construct(
         string $component=null,
         string $variation=null,
-        array $params=[],
+        array $queryParams=[],
         bool $explore=false)
     {
 
         $this->component = $component;
         $this->variation = $variation;
-        $this->params = $params;
+        $this->queryParams = $queryParams;
         $this->explore = $explore;
         $this->definitionFilename = "@definitions.php";
         $this->fileSuffix = ".blade.php";
@@ -63,10 +63,10 @@ class Blook {
             $context = [$this->component, $this->variation];
         }
 
-        // TODO DOM FIN D A WAYRepopulating context with query args if there are some
-        /*foreach($request->query() as $arg => $value){
-            $context[$arg] = $value;
-        }*/
+        // Repopulating with query params
+        foreach($this->queryParams as $param => $value){
+            $context[$param] = $value;
+        }
 
         return isset($routeName) ? route($routeName, $context) : "";
     }
@@ -79,7 +79,7 @@ class Blook {
         $componentCode = is_file($fullComponentPath) ? File::get($fullComponentPath) : "";
 
         // Passing all get params in all cases
-        $attributes = $this->params;
+        $attributes = $this->queryParams;
 
         if($this->variation && in_array($this->component, $this->componentsWithDefinitions)){
             $attributes = array_merge(
@@ -114,63 +114,66 @@ class Blook {
         return explode("/components/", $filename)[1];
     }
 
-    public function getAllComponents($dir, $level){
-        
-        $fileSuffix = ".blade.php";
-        $items = scandir($dir);
+    public function shouldCollectItem($item)
+    {
+        return ! in_array($item, config('blook.banlist'));
+    }
 
+    private function getItemVariations($item)
+    {
+        $variations = [];
+        if(in_array($item, $this->componentsWithDefinitions)){
+            $variations = $this->componentsDefinitions[$item];
+        }
+        return $variations;
+    }
+
+    public function getAllComponents($dir, $level){
+
+        $main = [];
+        $items = scandir($dir);
+        $fileSuffix = ".blade.php";
+
+        // Cleans ".", ".." and definition file
         unset($items[array_search($this->definitionFilename, $items, true)]);
         unset($items[array_search('.', $items, true)]);
         unset($items[array_search('..', $items, true)]);
-    
-        $main = [];
 
         foreach($items as $item){
-            if(is_dir($dir.'/'.$item)){
 
-                if(! in_array($item.'/', config('blook.banlist'))){
-                    $main[$item] = [
-                        "type" => "folder",
-                        "children" => $this->getAllComponents($dir.'/'.$item, $level + 1)
-                    ];
-                }
+            $folderName = $item.'/';
+            $fullPath = $dir.'/'.$item;
 
+            // Exploring subfolder if folder and not in banlist
+            if(is_dir($fullPath) && $this->shouldCollectItem($folderName)){
+                $main[$item] = [
+                    "type" => "folder",
+                    "children" => $this->getAllComponents($fullPath, $level + 1)
+                ];
             }else{
 
                 $cleanName = $this->getComponentName($item);
                 $relativePath = $this->getRelativePath($dir);
                 $componentFullName = str_replace("/", ".", substr(explode($fileSuffix, $relativePath.'/'.$item)[0], 1));
 
+                if($this->shouldCollectItem($componentFullName)){
 
-                if(! in_array($componentFullName, config('blook.banlist'))){
+                    $finalItem = [
+                        "type" => "file",
+                        "path" => $relativePath.'/'.$item,
+                        "directory" => $relativePath,
+                        "name" => $cleanName,
+                        "fullname" => $componentFullName,
+                        "filename" => $item,
+                        "variations" => $this->getItemVariations($componentFullName)
+                    ];
 
-                    // Getting variations if some exist
-                    $variations = [];
-                    if(in_array($componentFullName, $this->componentsWithDefinitions)){
-                        $variations = $this->componentsDefinitions[$componentFullName];
-                    }
-
+                    // Components in root folder are put in specified folder name
                     if($level == 1){
                         $main[$this->rootGroupName]["type"] = "folder";
-                        $main[$this->rootGroupName]["children"][] = [
-                            "type" => "file",
-                            "path" => $relativePath.'/'.$item,
-                            "directory" => $relativePath,
-                            "name" => $cleanName,
-                            "fullname" => $componentFullName,
-                            "filename" => $item,
-                            "variations" => $variations
-                        ];
+                        $main[$this->rootGroupName]["children"][] = $finalItem;
                     }else{
-                        $main[] = [
-                            "type" => "file",
-                            "path" => $relativePath.'/'.$item,
-                            "directory" => $relativePath,
-                            "fullname" => $componentFullName,
-                            "name" => $cleanName,
-                            "filename" => $item,
-                            "variations" => $variations
-                        ];
+                        $main[] = $finalItem; // Collecting item
                     }
                 }
             }
