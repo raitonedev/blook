@@ -20,6 +20,10 @@
                             bgMenuOpen: false,
                             viewportMenuOpen: false,
 
+                            // Tabs & bottombar
+                            bottomBarActive: this.$persist(true),
+                            activeTab: this.$persist("context"),
+
                             // Persistent settings
                             colorId: this.$persist("default"),
                             viewportId: this.$persist("default"),
@@ -71,6 +75,10 @@
                                 }
                             },
 
+                            toggleTab(tab){
+                                this.activeTab = tab;
+                            },
+
                             closeMenus() {
                                 this.bgMenuOpen = false;
                                 this.viewportMenuOpen = false;
@@ -84,36 +92,17 @@
 
         <style>
 
-                        /* Code block with numbered lines */
-                        pre.code { white-space: pre-wrap; }
+            /* Code block with numbered lines */
+            pre.code { white-space: pre-wrap; }
             pre.code::before { counter-reset: listing;}
             pre.code code { counter-increment: listing; }
             pre.code code::before { content: counter(listing) ". "; color: #888; display: inline-block; width: 3em; }
-            .pre{
-                height: 50%;
-                display:block;
-                font-size: 11px;
-                border-top: 2px solid #ccc;
-                padding: 16px;
-                background-color: #111;
-                color: #f8f8f8;
-                position:relative;
-                overflow: scroll;
-            }
 
 
         </style>
     </head>
 
-    <body class="blook-null blook-h-screen" x-data="blook">
-
-
-
-
-
-
-
-
+    <body x-data="blook">
 
 
 <!--
@@ -304,155 +293,188 @@
   </div>
 
   <main class="lg:pl-72">
-    <div class="xl:pr-96">
-      <div class="h-[100svh]">
+    <div>
+      <div class="h-[100svh] w-full">
 
-      <div class="h-[8svh] border-b border-gray-300">
-        <div class="flex gap-4 py-2 px-4">
-            
-            <div class="relative inline-block text-left">
-                <div
-                    @click="bgMenuOpen = !bgMenuOpen"
-                    @click.outside="bgMenuOpen = false"
-                >
-                    @include('blook::components.icon', ['icon' => 'backgrounds'])
-                </div>
-
-                <div
-                  x-cloak x-transition x-show="bgMenuOpen"
-                  class="absolute right-0 z-50 mt-2 w-auto origin-top-left rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
-                  role="menu"
-                  aria-orientation="vertical"
-                  aria-labelledby="menu-button"
-                  tabindex="-1"
-                >
-                  <div class="py-1" role="none">
-                    <button
-                      @click="changeBackground('default')"
-                      class="text-gray-700 block px-4 py-2 text-sm"
-                      role="menuitem"
-                      tabindex="-1"
-                      id="menu-item-0"
+        <div class="h-[8svh] border-b border-gray-300 sticky top-0 bg-white">
+            <!-- TOOLBAR -->
+            <div class="flex gap-4 py-2 px-4">
+                
+                <div class="relative inline-block text-left">
+                    <div
+                        @click="bgMenuOpen = !bgMenuOpen"
+                        @click.outside="bgMenuOpen = false"
                     >
-                      Default
-                    </button>
-                    @foreach(config('blook.backgrounds') as $background)
+                        @include('blook::components.icon', ['icon' => 'backgrounds'])
+                    </div>
+
+                    <div
+                      x-cloak x-transition x-show="bgMenuOpen"
+                      class="absolute right-0 z-50 mt-2 w-auto origin-top-left rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+                      role="menu"
+                      aria-orientation="vertical"
+                      aria-labelledby="menu-button"
+                      tabindex="-1"
+                    >
+                      <div class="py-1" role="none">
                         <button
-                          @click="changeBackground('{{ $background['id'] }}')"
+                          @click="changeBackground('default')"
                           class="text-gray-700 block px-4 py-2 text-sm"
                           role="menuitem"
                           tabindex="-1"
                           id="menu-item-0"
                         >
-                        {{ $background['label'] }}
+                          Default
                         </button>
-                    @endforeach
-                  </div>
+                        @foreach(config('blook.backgrounds') as $background)
+                            <button
+                              @click="changeBackground('{{ $background['id'] }}')"
+                              class="text-gray-700 block px-4 py-2 text-sm"
+                              role="menuitem"
+                              tabindex="-1"
+                              id="menu-item-0"
+                            >
+                            {{ $background['label'] }}
+                            </button>
+                        @endforeach
+                      </div>
+                    </div>
+
                 </div>
 
-            </div>
-
-            <div class="relative inline-block text-left">
-                <div
-                    @click="viewportMenuOpen = !viewportMenuOpen"
-                    @click.outside="viewportMenuOpen = false"
-                >
-                @include('blook::components.icon', ['icon' => 'viewports'])
-                </div>
-                <div
-                  x-cloak x-transition x-show="viewportMenuOpen"
-                  class="absolute right-0 z-50 mt-2 w-auto origin-top-left rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
-                  role="menu"
-                  aria-orientation="vertical"
-                  aria-labelledby="menu-button"
-                  tabindex="-1"
-                >
-                <div class="py-1" role="none">
-                    <button
-                    @click="changeViewport('default')"
-                    class="text-gray-700 block px-4 py-2 text-sm"
-                          role="menuitem"
-                          tabindex="-1"
-                          id="menu-item-0"
+                <div class="relative inline-block text-left">
+                    <div
+                        @click="viewportMenuOpen = !viewportMenuOpen"
+                        @click.outside="viewportMenuOpen = false"
                     >
-                        Default
-                    </button>
-                    @foreach(config('blook.viewports') as $viewport)
-                        <button 
-                        @click="changeViewport('{{ $viewport['id'] }}')"
+                    @include('blook::components.icon', ['icon' => 'viewports'])
+                    </div>
+                    <div
+                      x-cloak x-transition x-show="viewportMenuOpen"
+                      class="absolute right-0 z-50 mt-2 w-auto origin-top-left rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+                      role="menu"
+                      aria-orientation="vertical"
+                      aria-labelledby="menu-button"
+                      tabindex="-1"
+                    >
+                    <div class="py-1" role="none">
+                        <button
+                        @click="changeViewport('default')"
                         class="text-gray-700 block px-4 py-2 text-sm"
-                          role="menuitem"
-                          tabindex="-1"
-                          id="menu-item-0"
-                      >
-                        {{ $viewport['label'] }}
+                              role="menuitem"
+                              tabindex="-1"
+                              id="menu-item-0"
+                        >
+                            Default
                         </button>
-                    @endforeach
-          </div>
+                        @foreach(config('blook.viewports') as $viewport)
+                            <button 
+                            @click="changeViewport('{{ $viewport['id'] }}')"
+                            class="text-gray-700 block px-4 py-2 text-sm"
+                              role="menuitem"
+                              tabindex="-1"
+                              id="menu-item-0"
+                          >
+                            {{ $viewport['label'] }}
+                            </button>
+                        @endforeach
+              </div>
+                    </div>
                 </div>
+
             </div>
 
-
-
+            <!-- INFOBAR -->
+            <div class="flex justify-between pb-3 px-4">
+                <div>
+                    {{ $componentName }}
+                    @if($variation)
+                        - <span class="text-gray-400">[{{ $variation }}]</span>
+                    @else
+                        - <span class="text-gray-400">Default</span>
+                    @endif
+                </div>
+                <div class="text-gray-400">
+                    <a target="_blank" href="{{ $componentShowRoute }}">Open in new tab</a>
+                </div>
+            </div>
         </div>
 
-        <div class="flex justify-between pb-3 px-4">
-            <div>
-                {{ $componentName }}
-                @if($variation)
-                    - <span class="text-gray-400">[{{ $variation }}]</span>
+
+        <!-- WORKSPACE -->
+        <iframe
+            x-ref="iframe"
+            class="h-[60svh] w-full overflow-scroll"
+            src="{{ $componentShowRoute }}"
+            title="Component Detail">
+        </iframe>
+
+        
+        <!-- BOTTOM BAR -->
+        <button
+          x-show="! bottomBarActive"
+          @click="bottomBarActive = !bottomBarActive"
+          class="absolute z-50 background-white border-2 bottom-0 right-0 p-2 font-semibold text-gray-400"
+        >
+          Show bar
+        </button>
+        <div
+          x-show="bottomBarActive"
+          class="h-[32svh] sticky bottom-0">
+
+            <div class="flex justify-between font-semibold text-gray-400 p-3 border-t-2 border-b-2 sticky top-0 bg-white">
+              <div class="flex gap-8">
+              <button
+                  @click="toggleTab('context')"
+                  :class="{ 'text-black': activeTab === 'context' }"
+                >Context</button>
+                <button
+                  @click="toggleTab('code')"
+                  :class="{ 'text-black': activeTab === 'code' }"
+                >Code</button>
+              </div>
+              <button @click="bottomBarActive = !bottomBarActive">
+                Hide bar
+              </button>
+            </div>
+
+            <!-- CONTEXT TAB -->
+            <div
+              x-show="activeTab == 'context'"
+              class="w-full overflow-scroll"
+            >
+
+                @if($attributes && count($attributes->getAttributes()) > 0)
+                  <dl class="divide-y divide-gray-100">
+                    @foreach($attributes->getAttributes() as $attr => $value)
+                      <div class="px-4 py-3 sm:grid sm:grid-cols-3 sm:gap-4">
+                        <dt class="text-sm font-medium leading-6 text-gray-900">{{ $attr }}</dt>
+                        <dd class="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">{{ $value }}</dd>
+                      </div>
+                    @endforeach
+                  </dl>
                 @else
-                    - <span class="text-gray-400">Default</span>
+                    <p>No specific context attributes provided.</p>
                 @endif
             </div>
-            <div class="text-gray-400">
-                <a target="_blank" href="{{ $componentShowRoute }}">Open in new tab</a>
-            </div>
-        </div>
-      </div>
-
-
-      <iframe
-          x-ref="iframe"
-          class="h-[92svh] w-full"
-          src="{{ $componentShowRoute }}"
-          title="Component Detail">
-      </iframe>
-
-
-      </div>
-    </div>
-  </main>
-
-  <aside class="fixed inset-y-0 right-0 hidden w-96 overflow-y-auto border-l border-gray-200 xl:block">
-
-  
-
-
-<div class="h-1/2 overflow-scroll p-2">
+            
+            <!-- CODE TAB -->
+            <div
+              x-show="activeTab == 'code'"
+              class="w-full overflow-scroll px-3 pt-3">
 <pre class="code text-[10px]">
 @foreach(preg_split("/((\r?\n)|(\r\n?))/", $componentCode) as $line)
 <code>{{ $line }}</code>
 @endforeach
 </pre>
-</div>
+            </div>
 
-<div class="blook-show-context-bloc">
-    <h4 class="blook-show-section-title">Current context</h4>
-        @if($attributes && count($attributes->getAttributes()) > 0)
-            <table class="blook-table">
-                @foreach($attributes->getAttributes() as $attr => $value)
-                    <tr><td>{{ $attr }}</td><td>{{ $value }}</td>
-                @endforeach
-            </table>
-        @else
-            No specific context attributes provided.
-        @endif
-</div>
+        </div>
 
+      </div>
+    </div>
+  </main>
 
-
-  </aside>
 </div>
 
 
