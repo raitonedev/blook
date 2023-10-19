@@ -47,12 +47,6 @@
                                     this.changeBackground(this.colorId);
                                     this.changeViewport(this.viewportId);
 
-                                    if(this.alignInMiddle){
-                                        this.workingCanvaParent.classList.remove('blook-centered-canva');
-                                    }else{
-                                        this.workingCanvaParent.classList.add('blook-centered-canva');
-                                    }
-
                                 });
                             },
 
@@ -285,10 +279,11 @@
         <ul role="list" class="flex flex-1 flex-col gap-y-7">
           <li>
             <ul role="list" class="-mx-2 space-y-1">
-
                 @foreach($components as $group => $item)
                     @include('blook::components.group', ['group' => $group, 'items' => $item["children"], 'id' => $loop->iteration])
                 @endforeach
+            </ul>
+          </li>
         </ul>
       </nav>
     </div>

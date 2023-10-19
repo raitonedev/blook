@@ -18,16 +18,18 @@
     <span
         x-show="{{ $folderMenu }}"
         x-transition
-        class="block p-4"
+        class="block pl-4 pt-2 pb-4"
     >
         @foreach($items as $item => $values)
             @if($values["type"] == "folder")
+            <ul>
                 @include("blook::components.group", ["group" => $item, "items" => $values["children"], "id" => $id."sub".$loop->iteration])
+            </ul>
             @else
 
                 @if(count($values["variations"]) > 0)
 
-                    @php $variationMenu = "variationsMenu".$loop->parent->iteration.$loop->iteration; @endphp
+                    @php $variationMenu = "variationsMenu".$id.$loop->iteration; @endphp
 
                     <div x-data="{ {{ $variationMenu }}: $persist(false) }">
                         <div class="flex justify-between">

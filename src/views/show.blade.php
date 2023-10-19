@@ -4,9 +4,12 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
-        <title>Component Details {{ $componentName }}</title>
+        <title>Component - {{ $componentName }}</title>
     </head>
 
+    <style>#canva{ position:relative; overflow-y:scroll; transform-origin: top left; }</style>
+
+    <body>
         <div id="canva-parent">
             <div id="canva">
                 <!-- Loading target component dynamically with attributes -->
@@ -17,6 +20,7 @@
         @forelse(config('blook.assets') as $bundle)
             <script type="module" src="http://localhost:3002/resources/js/bundles/{{ $bundle }}.js"></script>
         @empty
+            <!-- No main assets to load. -->
         @endforelse
 
         <style>

@@ -14,7 +14,7 @@ if($inValidEnvironment){
     
                 # Iframe
                 Route::get('/show/{component}', 'show')->name('show');
-                Route::get('/blook/show/{component}/variation/{variation}', 'show')->name('show.variation');
+                Route::get('/show/{component}/variation/{variation}', 'show')->name('show.variation');
                 
                 # Interface
                 Route::get('/{component?}', 'index')->name('index');
