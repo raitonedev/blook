@@ -11,16 +11,25 @@ class BlookController
     public function index(Request $request, string $component=null, string $variation=null)
     {
         $blook = new Blook($component, $variation, $request->query(), true);
-        return view('blook::index', array_merge([
+
+        $baseContext = [
             "components" => $blook->getComponents(),
             "componentShowRoute" => $blook->getComponentShowRoute()
-        ], $blook->getComponentDetails()));
+        ];
+
+        return view('blook::index', array_merge($baseContext, $blook->getComponentDetails()));
     }
 
 
     public function show(Request $request, string $component, string $variation=null)
     {
         $blook = new Blook($component, $variation, $request->query());
-        return view('blook::show', $blook->getComponentDetails());
+
+        $baseContext = [
+            "hasSlot" => $blook->componentHasProperty(Blook::SLOTS),
+            "hasAssets" => $blook->componentHasProperty(Blook::ASSETS),
+        ];
+
+        return view('blook::show', array_merge($baseContext, $blook->getComponentDetails()));
     }
 }

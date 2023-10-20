@@ -15,16 +15,42 @@
     <body>
         <div id="canva-parent">
             <div id="canva">
+
                 <!-- Loading target component dynamically with attributes -->
-                <x-dynamic-component :component="$componentName" {{ $attributes }} />
+                <x-dynamic-component :component="$componentName" {{ $attributes }}>
+                @if($hasSlot)
+                    <!-- Injecting slots definitions -->
+                    @foreach($slots as $key => $slot)
+                        @if($key == "slot")
+                            <!-- "Default" slot -->
+                            {{ $slot }}
+                        @else
+                            <!-- Named slot -->
+                            <x-slot :name="$key">{{ $slot }}</x-slot>
+                        @endif
+                    @endforeach
+                @endif
+                </x-dynamic-component>
+
             </div>
         </div>
 
         @forelse(config('blook.assets') as $bundle)
-            <script type="module" src="http://localhost:3002/resources/js/bundles/{{ $bundle }}.js"></script>
+            <!-- Shared assets to load -->
+            @include('components.asset', ["bundle" => $bundle])
         @empty
             <!-- No main assets to load. -->
         @endforelse
+
+        @if($hasAssets)
+            @forelse($assets as $bundle)
+                <!-- Component assets to load -->
+                @include('components.asset', ["bundle" => $bundle])
+            @empty
+                <!-- No main assets to load. -->
+            @endforelse
+        @endif
+
 
         <style>
             .bg-default{ background-color: none; }

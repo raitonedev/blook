@@ -7,6 +7,12 @@ use Illuminate\View\ComponentAttributeBag;
 
 class Blook
 {
+    const ATTRIBUTES = "attributes";
+    const ASSETS = "assets";
+    const DEFAULT = "default";
+    const DEFINITIONS = "@definitions.php";
+    const FILE_SUFFIX = ".blade.php";
+    const SLOTS = "slots";
 
     public ?string $component;
     public ?string $variation;
@@ -33,12 +39,10 @@ class Blook
         $this->variation = $variation;
         $this->queryParams = $queryParams;
         $this->explore = $explore;
-        $this->definitionFilename = "@definitions.php";
-        $this->fileSuffix = ".blade.php";
 
         $this->rootGroupName = config('blook.root_group_name');
         $this->componentsPath = base_path(config('blook.path'));
-        $this->componentsDefinitions = include_once($this->componentsPath . $this->definitionFilename);
+        $this->componentsDefinitions = include_once($this->componentsPath . self::DEFINITIONS);
         $this->componentsWithDefinitions = array_keys($this->componentsDefinitions);
 
         /*
@@ -74,33 +78,30 @@ class Blook
     public function getComponentDetails() : array
     {
         $componentAttributes = [];
-        $componentRelativePath = str_replace(".", "/", $this->component) . $this->fileSuffix;
+        $componentRelativePath = str_replace(".", "/", $this->component) . self::FILE_SUFFIX;
         $fullComponentPath = $this->componentsPath . $componentRelativePath;
         $componentCode = is_file($fullComponentPath) ? File::get($fullComponentPath) : "";
 
-        $defaultAttributes = [];
-        $variationAttributes = [];
-        $queryAttributes = $this->queryParams;
+        $attributes = [];
+        $slots = [];
+        $assets = [];
 
-        if($this->componentHasDefinitions()){
+        if($this->componentHasProperty(self::ATTRIBUTES)){
+            $attributes = $this->loadComponentProperty(self::ATTRIBUTES);
+        }
 
-            // Fetching "default" attributes when present
-            if($this->componentHasDefaultDefinition()){
-                $defaultAttributes = $this->componentsDefinitions[$this->component]["default"]["attributes"];
-            }
+        if($this->componentHasProperty(self::SLOTS)){
+            $slots = $this->loadComponentProperty(self::SLOTS);
+        }
 
-            // Fetching variation attributes when present
-            if ($this->variation && in_array($this->component, $this->componentsWithDefinitions)) {
-                $variationAttributes = $this->componentsDefinitions[$this->component][$this->variation]["attributes"];
-            }
-
+        if($this->componentHasProperty(self::ASSETS)){
+            $assets = $this->loadComponentProperty(self::ASSETS);
         }
 
         // Query overrides variation overrides default
         $attributes = array_merge(
-            $defaultAttributes,
-            $variationAttributes,
-            $queryAttributes
+            $attributes,
+            $this->queryParams
         );
 
         $componentAttributes = new ComponentAttributeBag($attributes);
@@ -109,9 +110,30 @@ class Blook
             "fullComponentPath" => $fullComponentPath,
             "componentName" => $this->component ?? "",
             "componentCode" => $componentCode,
-            "attributes" => $componentAttributes,
-            "variation" => $this->variation
+            self::ATTRIBUTES => $componentAttributes,
+            "variation" => $this->variation,
+            self::SLOTS => $slots,
+            self::ASSETS => $assets,
         ];
+    }
+
+    public function loadComponentProperty(string $property)
+    {
+        $defaultProperty = [];
+        $variationProperty = [];
+
+        if( $this->componentHasDefaultDefinition()
+            && array_key_exists($property, $this->componentsDefinitions[$this->component][self::DEFAULT])
+        ){
+            $defaultProperty = $this->componentsDefinitions[$this->component][self::DEFAULT][$property];
+        }
+        if( $this->variation
+            && array_key_exists($property, $this->componentsDefinitions[$this->component][$this->variation])
+        ){
+            $variationProperty = $this->componentsDefinitions[$this->component][$this->variation][$property];
+        }
+
+        return array_merge($defaultProperty, $variationProperty);
     }
 
     public function getAllComponents($dir, $level) : array
@@ -122,7 +144,7 @@ class Blook
         $fileSuffix = ".blade.php";
 
         // Cleans ".", ".." and definition file
-        unset($items[array_search($this->definitionFilename, $items, true)]);
+        unset($items[array_search(self::DEFINITIONS, $items, true)]);
         unset($items[array_search('.', $items, true)]);
         unset($items[array_search('..', $items, true)]);
 
@@ -176,7 +198,7 @@ class Blook
 
     private function getComponentName(string $filename) : string
     {
-        return explode($this->fileSuffix, $filename)[0];
+        return explode(self::FILE_SUFFIX, $filename)[0];
     }
 
     private function getRelativePath(string $filename) : string
@@ -188,11 +210,25 @@ class Blook
     {
         $variations = [];
         if (in_array($item, $this->componentsWithDefinitions)) {
-            unset($this->componentsDefinitions[$item]["default"]);
+            unset($this->componentsDefinitions[$item][self::DEFAULT]);
             $variations = $this->componentsDefinitions[$item];
         }
         return $variations;
     }
+
+    public function componentHasProperty(string $property)
+    {
+        if(! $this->componentHasDefinitions()){
+            return false;
+        }
+        $propertyInDefault = $this->componentHasDefaultDefinition()
+            && array_key_exists($property, $this->componentsDefinitions[$this->component][self::DEFAULT]);
+        $propertyInVariation = $this->variation
+            ? array_key_exists($property, $this->componentsDefinitions[$this->component][$this->variation])
+            : false;
+        return $propertyInDefault || $propertyInVariation;
+    }
+
 
     private function componentHasDefinitions()
     {
@@ -201,7 +237,7 @@ class Blook
 
     private function componentHasDefaultDefinition()
     {
-        return in_array("default", array_keys($this->componentsDefinitions[$this->component]));
+        return in_array(self::DEFAULT, array_keys($this->componentsDefinitions[$this->component]));
     }
 
     private function shouldCollectItem($item) : bool
