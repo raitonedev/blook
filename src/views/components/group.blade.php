@@ -56,14 +56,16 @@
                                 class="pl-2 mt-4 mb-8"
                             >
                                 @foreach($values["variations"] as $variation => $props)
-                                    <div class="mb-2 text-sm">
-                                        <a href="{{ route('blook.component.variation', [
-                                            'component' => $values['fullname'],
-                                            'variation' => $variation
-                                        ]) }}">
-                                            <span class="text-gray-400 mr-2">–</span> {{ $props["label"] }}
-                                        </a>
-                                    </div>
+                                    @if($variation != "default")
+                                        <div class="mb-2 text-sm">
+                                            <a href="{{ route('blook.component.variation', [
+                                                'component' => $values['fullname'],
+                                                'variation' => $variation
+                                            ]) }}">
+                                                <span class="text-gray-400 mr-2">–</span> {{ $props["label"] }}
+                                            </a>
+                                        </div>
+                                    @endif
                                 @endforeach
                             </div>
                     </span>

@@ -99,29 +99,11 @@
 
   <style>
     /* Code block with numbered lines */
-    pre.code {
-      white-space: pre-wrap;
-    }
-
-    pre.code::before {
-      counter-reset: listing;
-    }
-
-    pre.code code {
-      counter-increment: listing;
-    }
-
-    pre.code code::before {
-      content: counter(listing) ". ";
-      color: #888;
-      display: inline-block;
-      width: 3em;
-    }
-
-    pre code.hljs{
-      padding:0;
-    }
-
+    pre.code { white-space: pre-wrap;}
+    pre.code::before { counter-reset: listing;}
+    pre.code code { counter-increment: listing;}
+    pre.code code::before { content: counter(listing) ". "; color: #888; display: inline-block;}
+    pre code.hljs{ padding:0; }
   </style>
 </head>
 
@@ -303,18 +285,44 @@
             <!-- CONTEXT TAB -->
             <div x-show="activeTab == 'context'" x-transition class="w-full overflow-scroll">
 
-              @if($attributes && count($attributes->getAttributes()) > 0)
-              <dl class="divide-y divide-gray-100">
-                @foreach($attributes->getAttributes() as $attr => $value)
-                <div class="px-4 py-3 sm:grid sm:grid-cols-3 sm:gap-4">
-                  <dt class="text-sm font-medium leading-6 text-gray-900">{{ $attr }}</dt>
-                  <dd class="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">{{ $value }}</dd>
-                </div>
-                @endforeach
-              </dl>
-              @else
-              <p class="p-4">No specific context attributes provided.</p>
-              @endif
+                  <div class="flex border-b-2 p-4 text-sm">
+                    <span class="font-semibold w-16">Assets</span>
+                    <div>
+                      @forelse($assets as $bundle)
+                        <span class="mr-2 text-gray-400">{{ $bundle }}</span>
+                      @empty
+                        <p class="mr-2 text-gray-400">No component specific bundles.</p>
+                      @endforelse
+                    </div>
+                  </div>
+
+
+                  <div class="flex border-b-2 p-4 text-sm">
+                    <span class="font-semibold w-16">Slots</span>
+                    <div>
+                      @forelse($slots as $key => $slot)
+                        <span class="mr-2 text-gray-400">< x:{{ $key }} ></span>
+                      @empty
+                        <p class="mr-2 text-gray-400">No component specific slots.</p>
+                      @endforelse
+                    </div>
+                  </div>
+
+                  <div>
+                    <div class="font-semibold text-sm p-4 mt-2">Attributes</div>
+                  </div>
+                @if($attributes && count($attributes->getAttributes()) > 0)
+                <dl class="divide-y divide-gray-100">
+                  @foreach($attributes->getAttributes() as $attr => $value)
+                  <div class="px-4 py-3 sm:grid sm:grid-cols-3 sm:gap-4">
+                    <dt class="text-sm font-medium leading-6 text-gray-900">{{ $attr }}</dt>
+                    <dd class="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">{{ $value }}</dd>
+                  </div>
+                  @endforeach
+                </dl>
+                @else
+                <p class="p-4">No specific context attributes provided.</p>
+                @endif
             </div>
 
             <!-- CODE TAB -->

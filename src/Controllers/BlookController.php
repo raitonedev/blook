@@ -14,7 +14,7 @@ class BlookController
 
         $baseContext = [
             "components" => $blook->getComponents(),
-            "componentShowRoute" => $blook->getComponentShowRoute()
+            "componentShowRoute" => $blook->getComponentShowRoute(),
         ];
 
         return view('blook::index', array_merge($baseContext, $blook->getComponentDetails()));
