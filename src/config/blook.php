@@ -27,8 +27,8 @@ return [
 
     # Assets to load on all styleguide interface. Should be your vite "bundle" names
     "assets" => [
-        "app",
-        "alpine"
+        # "app",
+        # "alpine"
     ],
 
     # Background colors that can be toggled on interface

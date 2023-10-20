@@ -20,7 +20,7 @@ $providers = [
 ]
 ```
 
-Publish the config file and adapt as needed
+Publish the `config/blook.php` file and `@definitions.php` files.
 
 ```
 php artisan vendor:publish --provider="Raitone\Blook\Providers\BlookProvider"
@@ -35,4 +35,5 @@ php artisan config:cache
 
 You should now be able to navigate on `localhost/blook` and work on your components !
 
-## Configuration
+## Configuration options
+
