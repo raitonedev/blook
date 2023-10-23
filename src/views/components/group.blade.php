@@ -27,7 +27,7 @@
             </ul>
             @else
 
-                @if(count($values["variations"]) > 0)
+                @if($values["shouldShowVariations"])
 
                     @php $variationMenu = "variationsMenu".$id.$loop->iteration; @endphp
 
@@ -53,24 +53,31 @@
                             <div
                                 x-show="{{ $variationMenu }}"
                                 x-transition x-cloak
-                                class="pl-2 mt-4 mb-8"
+                                class="pl-2 my-4"
                             >
                                 @foreach($values["variations"] as $variation => $props)
-                                    <div class="mb-2 text-sm">
-                                        <a href="{{ route('blook.component.variation', [
-                                            'component' => $values['fullname'],
-                                            'variation' => $variation
-                                        ]) }}">
-                                            <span class="text-gray-400 mr-2">–</span> {{ $props["label"] }}
-                                        </a>
-                                    </div>
+                                    @if($variation != "default")
+                                        <div class="my-1 text-sm">
+                                            <a href="{{ route('blook.component.variation', [
+                                                'component' => $values['fullname'],
+                                                'variation' => $variation
+                                            ]) }}">
+                                                <span class="text-gray-400 mr-2">–</span>
+                                                @if(isset($props["label"]))
+                                                    {{ $props["label"] }}
+                                                @else
+                                                    {{ $variation }}
+                                                @endif
+                                            </a>
+                                        </div>
+                                    @endif
                                 @endforeach
                             </div>
                     </span>
 
                 @else
                     <!-- STANDALONE COMPONENT -->
-                    <span class="flex gap-2 items-center mt-2">
+                    <span class="flex gap-2 items-center my-2">
                         <span class="text-gray-400">
                             @include('blook::components.icon', ['icon' => 'component'])
                         </span>

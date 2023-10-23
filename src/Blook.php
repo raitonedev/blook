@@ -174,6 +174,7 @@ class Blook
                         "directory" => $relativePath,
                         "fullname" => $componentFullName,
                         "path" => $relativePath . '/' . $item,
+                        "shouldShowVariations" => $this->componentShouldShowVariations($componentFullName),
                         "variations" => $this->getItemVariations($componentFullName)
                     ];
 
@@ -211,10 +212,6 @@ class Blook
         $variations = [];
         
         if (in_array($item, $this->componentsWithDefinitions)) {
-            // Ignoring "default" variation, we do not want it to appear in menu
-            if(array_key_exists(self::DEFAULT, $this->componentsDefinitions[$item])){
-                unset($this->componentsDefinitions[$item][self::DEFAULT]);
-            }
             $variations = $this->componentsDefinitions[$item];
         }
 
@@ -244,6 +241,17 @@ class Blook
     private function componentHasDefaultDefinition()
     {
         return array_key_exists(self::DEFAULT, $this->componentsDefinitions[$this->component]);
+    }
+
+    public function componentShouldShowVariations($item)
+    {
+        if(! array_key_exists($item, $this->componentsDefinitions)){
+            return false;
+        }
+        $hasDefault = array_key_exists(self::DEFAULT, $this->componentsDefinitions[$item]);
+        $nbVariations = count($this->componentsDefinitions[$item]);
+        return  ($nbVariations > 1 && $hasDefault)
+                || ! $hasDefault && $nbVariations > 0;
     }
 
     private function shouldCollectItem($item) : bool
