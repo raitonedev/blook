@@ -169,11 +169,11 @@ class Blook
 
                     $finalItem = [
                         "type" => "file",
-                        "path" => $relativePath . '/' . $item,
-                        "directory" => $relativePath,
-                        "name" => $cleanName,
-                        "fullname" => $componentFullName,
                         "filename" => $item,
+                        "name" => $cleanName,
+                        "directory" => $relativePath,
+                        "fullname" => $componentFullName,
+                        "path" => $relativePath . '/' . $item,
                         "variations" => $this->getItemVariations($componentFullName)
                     ];
 
@@ -209,9 +209,15 @@ class Blook
     private function getItemVariations($item) : array
     {
         $variations = [];
+        
         if (in_array($item, $this->componentsWithDefinitions)) {
+            // Ignoring "default" variation, we do not want it to appear in menu
+            if(array_key_exists(self::DEFAULT, $this->componentsDefinitions[$item])){
+                unset($this->componentsDefinitions[$item][self::DEFAULT]);
+            }
             $variations = $this->componentsDefinitions[$item];
         }
+
         return $variations;
     }
 
