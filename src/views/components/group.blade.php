@@ -32,7 +32,7 @@
                     @php $variationMenu = "variationsMenu".$id.$loop->iteration; @endphp
 
                     <div x-data="{ {{ $variationMenu }}: $persist(false) }">
-                        <div class="flex justify-between">
+                        <div class="flex justify-between my-1">
 
                             <div class="flex gap-2 items-center">
                                 <span class="text-gray-400">
@@ -77,7 +77,7 @@
 
                 @else
                     <!-- STANDALONE COMPONENT -->
-                    <span class="flex gap-2 items-center my-2">
+                    <span class="flex gap-2 items-center my-1">
                         <span class="text-gray-400">
                             @include('blook::components.icon', ['icon' => 'component'])
                         </span>
