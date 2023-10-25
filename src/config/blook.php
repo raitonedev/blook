@@ -70,10 +70,14 @@ return [
         ]
     ],
 
+    # You can disable canva changes animations to avoid it conflicting with yours
+    "enable_animations" => true,
+
     # Which components do you want to ban from blook interface
     "banlist" => [
-        # "layouts/", # Suffix slash will ban a whole folder
+        # "dashboard/layouts/", # Suffix slash will ban a whole folder
         # "icon", # Will ban {path}/icon.blade.php
         # "atoms.button", # Will ban {path}/atoms/button.blade.php
+        # "another.cool.component", # Will ban {path}/another/cool/component.blade.php
     ],
 ];

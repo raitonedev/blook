@@ -2,11 +2,15 @@
 
 namespace Raitone\Blook;
 
+use Raitone\Blook\Services\FileContextService;
+
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Log;
 use Illuminate\View\ComponentAttributeBag;
 
 class Blook
 {
+    const VERSION = "0.6.0";
     const ATTRIBUTES = "attributes";
     const ASSETS = "assets";
     const DEFAULT = "default";
@@ -17,6 +21,8 @@ class Blook
     public ?string $component;
     public ?string $variation;
     public ?bool $explore;
+
+    public FileContextService $fileContext;
 
     public array $queryParams;
     private array $components;
@@ -45,6 +51,8 @@ class Blook
         $this->componentsDefinitions = include_once($this->componentsPath . self::DEFINITIONS);
         $this->componentsWithDefinitions = array_keys($this->componentsDefinitions);
 
+        $this->fileContext = new FileContextService();
+
         /*
         * Since both controllers use a Blook object to get content, we go through the component
         * listing only if when explicitly asked (on index), for performance reasons. This avoid to loop through
@@ -72,7 +80,7 @@ class Blook
             $context[$param] = $value;
         }
 
-        return isset($routeName) ? route($routeName, $context) : "";
+        return isset($routeName) ? route($routeName, $context) : route('blook.home');
     }
 
     public function getComponentDetails() : array
@@ -141,7 +149,6 @@ class Blook
 
         $main = [];
         $items = scandir($dir);
-        $fileSuffix = ".blade.php";
 
         // Cleans ".", ".." and definition file
         unset($items[array_search(self::DEFINITIONS, $items, true)]);
@@ -150,20 +157,27 @@ class Blook
 
         foreach ($items as $item) {
 
-            $folderName = $item . '/';
-            $fullPath = $dir . '/' . $item;
+            $fullPath = $dir . $item;
+            $relativePath = $this->getRelativePath($dir);
 
             // Exploring subfolder if folder and not in banlist
-            if (is_dir($fullPath) && $this->shouldCollectItem($folderName)) {
-                $main[$item] = [
-                    "type" => "folder",
-                    "children" => $this->getAllComponents($fullPath, $level + 1)
-                ];
+            if (is_dir($fullPath)) {
+                if($this->shouldCollectItem($relativePath . $item . '/')){
+                    $main[$item] = [
+                        "type" => "folder",
+                        "children" => $this->getAllComponents($fullPath . '/', $level + 1)
+                    ];
+                }
+
             } else {
 
                 $cleanName = $this->getComponentName($item);
-                $relativePath = $this->getRelativePath($dir);
-                $componentFullName = str_replace("/", ".", substr(explode($fileSuffix, $relativePath . '/' . $item)[0], 1));
+
+                // Only clean component name if no relative path
+                $slashPath = $relativePath != "" ? $relativePath . $cleanName : $cleanName;
+                $componentFullName = str_replace("/", ".", $slashPath);
+
+                Log::debug($componentFullName);
 
                 if ($this->shouldCollectItem($componentFullName)) {
 

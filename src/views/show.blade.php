@@ -4,15 +4,19 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
-        <title>Component - {{ $componentName }}</title>
+        <title>{{ config('blook.title') }} - {{ $componentName }}</title>
     </head>
 
     <style>
+        html, body, #canva{height: 100svh;}
         #canva{ position:relative; overflow-y:scroll; transform-origin: top left; }
+        @if(config('blook.enable_animations'))
         #canva-parent, #canva, body{ transition-duration: 280ms; }
+        @endif
     </style>
 
     <body>
+
         <div id="canva-parent">
             <div id="canva">
 
@@ -35,9 +39,10 @@
             </div>
         </div>
 
+
         @forelse(config('blook.assets') as $bundle)
             <!-- Shared assets to load -->
-            @include('components.asset', ["bundle" => $bundle])
+            @include('blook::components.asset', ["bundle" => $bundle, "blook" => $blook])
         @empty
             <!-- No main assets to load. -->
         @endforelse
@@ -45,7 +50,7 @@
         @if($hasAssets)
             @forelse($assets as $bundle)
                 <!-- Component assets to load -->
-                @include('components.asset', ["bundle" => $bundle])
+                @include('blook::components.asset', ["bundle" => $bundle, "blook" => $blook])
             @empty
                 <!-- No main assets to load. -->
             @endforelse

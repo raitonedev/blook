@@ -8,6 +8,11 @@ use Raitone\Blook\Blook;
 class BlookController
 {
 
+    public function home()
+    {
+        return view('blook::home');
+    }
+
     public function index(Request $request, string $component=null, string $variation=null)
     {
         $blook = new Blook($component, $variation, $request->query(), true);
@@ -26,6 +31,7 @@ class BlookController
         $blook = new Blook($component, $variation, $request->query());
 
         $baseContext = [
+            "blook" => $blook,
             "hasSlot" => $blook->componentHasProperty(Blook::SLOTS),
             "hasAssets" => $blook->componentHasProperty(Blook::ASSETS),
         ];

@@ -12,6 +12,8 @@ if($inValidEnvironment){
         Route::name('blook.')->group(function () {
             Route::controller(BlookController::class)->group(function () {
     
+                Route::get('/home', 'home')->name('home');
+
                 # Iframe
                 Route::get('/show/{component}', 'show')->name('show');
                 Route::get('/show/{component}/variation/{variation}', 'show')->name('show.variation');
